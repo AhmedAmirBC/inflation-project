@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import bs4.BeautifulSoup
+import bs4
 import requests
 import sys
 
@@ -20,13 +20,18 @@ def pull_name(td):
     return td.text[15:-5]
     
 def pull_rate(td):
-    rate = td.text[:-3]
-    rate_parts = rate.split(".")
-    if len(rate_parts) == 2:
-        return float(rate)
-    else:
-        rate = float(str(rate_parts[0]) + str(rate_parts[1]) + "." + str(rate_parts[-1]))
-        return rate
+
+    ## unfortunate special case. Some rates may be missing. If the rate is not of form d.dd#, where d is digit and # is special character, we will return 0.00
+    try:
+        rate = td.text[:-3]
+        rate_parts = rate.split(".")
+        if len(rate_parts) == 2:
+            return float(rate)
+        else:
+            rate = float(str(rate_parts[0]) + str(rate_parts[1]) + "." + str(rate_parts[-1]))
+            return rate
+    except IndexError:
+        return 0.00
 
 def compile_(d, c, r, y):
     number_of_countries = len(c)
@@ -40,11 +45,11 @@ def compile_(d, c, r, y):
 
 if __name__ == "__main__":
 
-    if len(sys.arv) == 1:
+    if len(sys.argv) == 1:
         start_year = 1973
         end_year = 2018 ## modify as needed. Leave as current year - 1.
     else:
-        start_year = sys.argv[1]
+        start_year = int(sys.argv[1])
         end_year = 2018
 
     url_list = dict({})
